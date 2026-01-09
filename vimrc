@@ -49,7 +49,11 @@ nnoremap <silent> <esc> :nohlsearch<cr>
 
 " 默认不折行，但可切换
 set nowrap
-nnoremap <silent> <leader>wr :set wrap!<cr>
+" nnoremap <silent> <leader>wr :set wrap!<cr>
+nnoremap <silent> <c-x>xt :set wrap!<cr>
+
+" 在右边打开当前文件目录下的另一个文件
+nnoremap <c-x>3f :vsp %:p:h/
 
 " emacs keybinding
 " insert mode
@@ -77,8 +81,11 @@ tnoremap <c-a> <home>
 tnoremap <c-e> <end>
 tnoremap <c-d> <del>
 
-nnoremap [b :bp<cr>
-nnoremap ]b :bn<cr>
+nnoremap <C-e> 5<C-e>
+nnoremap <C-y> 5<C-y>
+
+nnoremap <c-pageup> :bprevious<CR>
+nnoremap <c-pagedown> :bnext<CR>
 
 " }}}
 
@@ -213,11 +220,14 @@ let g:Lf_WindowPosition = 'popup'
 nnoremap <c-x><c-f> :LeaderfFile<cr>
 nnoremap <c-x><c-b> :LeaderfBuffer<cr>
 nnoremap <c-x><c-r> :LeaderfMru<cr>
-nnoremap <leader>ff :LeaderfFunction<cr>
-nnoremap <leader>ft :LeaderfBufTag<cr>
-nnoremap <leader>tt :LeaderfTag<cr>
-nnoremap <leader>rg :Leaderf rg<cr>
-nnoremap <leader>ri :LeaderfRgInteractive<cr>
+nnoremap <m-g>i :LeaderfFunction<cr>
+nnoremap <m-g>bt :LeaderfBufTag<cr>
+nnoremap <m-g>tt :LeaderfTag<cr>
+nnoremap <m-g>rg :Leaderf rg<cr>
+nnoremap <m-g>ri :LeaderfRgInteractive<cr>
+
+" change shortkey from C-J to C-N, but not map C-J to C-N.
+let g:Lf_CommandMap = {'<C-J>': ['<C-N>'], '<C-K>': ['<C-P>']}
 
 " }}}
 
