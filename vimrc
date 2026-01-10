@@ -261,6 +261,8 @@ Plug 'girishji/vimcomplete'
 let g:vimcomplete_do_mapping = 0
 
 Plug 'github/copilot.vim'
+
+Plug 'epheien/termdbg'
 " }}}
 
 " coc.nvim {{{
