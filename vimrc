@@ -209,9 +209,9 @@ Plug 'dstein64/vim-startuptime'
 " alternative to easymotion {{{
 Plug 'monkoose/vim9-stargate'
 " for the start of a word
-noremap <space>w <Cmd>call stargate#OKvim('\<')<CR>
+noremap <m-g>w <Cmd>call stargate#OKvim('\<')<CR>
 " for the start of a line
-noremap <space>l <Cmd>call stargate#OKvim('\_^')<CR>
+noremap <m-g>l <Cmd>call stargate#OKvim('\_^')<CR>
 " }}}
 
 " LeaderF {{{

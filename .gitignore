@@ -1,12 +1,4 @@
-recentf
-projectile.cache
-projectile-bookmarks.eld
-.org-id-locations
-auto-save-list/
-server/
-transient/
-site-lisp/
-
-
+.claude/
 .netrwhist
 coc-settings.json
+lazy-lock.json
