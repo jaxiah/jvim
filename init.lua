@@ -104,6 +104,11 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- [[ Autocommands ]]
+-- switch to english im (1033) when leaving insert mode
+vim.api.nvim_create_autocmd('InsertLeave', {
+  pattern = '*',
+  callback = function() vim.fn.jobstart { 'im-select.exe', '1033' } end,
+})
 
 -- Highlight on yank
 vim.api.nvim_create_autocmd('TextYankPost', {
@@ -363,7 +368,7 @@ require('lazy').setup({
     event = { 'BufWritePre' },
     cmd = { 'ConformInfo' },
     keys = {
-      { '<leader>fm', function() require('conform').format { async = true, lsp_format = 'fallback' } end, mode = '', desc = '[F]or[m]at buffer' },
+      { '<leader>ft', function() require('conform').format { async = true, lsp_format = 'fallback' } end, mode = '', desc = '[F]or[m]at buffer' },
     },
     opts = {
       notify_on_error = false,
