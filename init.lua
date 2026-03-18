@@ -372,7 +372,7 @@ require('lazy').setup({
     },
     opts = {
       notify_on_error = false,
-      formatters_by_ft = { lua = { 'stylua' }, python = { 'black' } },
+      formatters_by_ft = { lua = { 'stylua' }, python = { 'black' }, markdown = { 'prettier' } },
       formatters = { black = { prepend_args = { '-l', '160' } } },
     },
   },
