@@ -38,6 +38,21 @@ vim.o.confirm = true
 -- GUI (neovide or gvim)
 if vim.fn.has 'gui_running' == 1 or vim.g.neovide then vim.o.guifont = 'Maple Mono NL NF CN:h11' end
 
+-- Windows: use PowerShell Core
+if vim.fn.has 'win32' == 1 then
+  vim.o.shell = 'pwsh'
+  vim.o.shellcmdflag =
+    '-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;'
+  vim.o.shellredir = '2>&1 | Out-File -Encoding UTF8 %s'
+  vim.o.shellpipe = '2>&1 | Out-File -Encoding UTF8 %s'
+  vim.o.shellquote = ''
+  vim.o.shellxquote = ''
+end
+
+-- Show cursor in terminal mode
+vim.opt.guicursor:append 't:ver25'
+vim.api.nvim_set_hl(0, 'TermCursor', { reverse = true })
+
 -- [[ Keymaps ]]
 
 -- Clear search highlight
@@ -129,15 +144,13 @@ vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter' }, {
   command = 'checktime',
 })
 
--- Auto-enter insert mode when switching to a terminal buffer
+-- Terminal buffer setup: no line numbers, no gutter, auto-enter insert
 vim.api.nvim_create_autocmd('TermOpen', {
   group = vim.api.nvim_create_augroup('term-open', { clear = true }),
-  callback = function() vim.cmd 'startinsert' end,
-})
-vim.api.nvim_create_autocmd('BufEnter', {
-  group = vim.api.nvim_create_augroup('term-enter', { clear = true }),
   callback = function()
-    if vim.bo.buftype == 'terminal' then vim.cmd 'startinsert' end
+    vim.wo.number = false
+    vim.wo.signcolumn = 'no'
+    vim.cmd 'startinsert'
   end,
 })
 
