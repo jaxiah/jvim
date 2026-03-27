@@ -193,6 +193,9 @@ vim.api.nvim_create_user_command('VisualSearch', function(opts)
   vim.cmd(opts.line1 .. ',' .. opts.line2 .. 'g/' .. opts.args .. '/caddexpr expand("%") . ":" . line(".") . ":" . getline(".")')
 end, { range = true, nargs = '+', desc = 'Search in visual range → quickfix' })
 
+-- [[ Code Tour ]]
+require 'codetour'
+
 -- [[ Plugin manager: lazy.nvim ]]
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
