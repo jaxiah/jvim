@@ -113,6 +113,8 @@ vim.diagnostic.config {
   virtual_lines = false,
   jump = { float = true },
 }
+vim.diagnostic.enable(false) -- off by default; toggle with <leader>td
+vim.keymap.set('n', '<leader>td', function() vim.diagnostic.enable(not vim.diagnostic.is_enabled()) end, { desc = '[T]oggle [D]iagnostics' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic quickfix list' })
 
 -- Exit terminal mode
@@ -234,6 +236,7 @@ require('lazy').setup({
       icons = { mappings = vim.g.have_nerd_font },
       spec = {
         { '<leader>s', group = '[S]earch', mode = { 'n', 'v' } },
+        { '<leader>f', group = '[F]ormat' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
         { 'gr', group = 'LSP Actions', mode = { 'n' } },
@@ -384,7 +387,7 @@ require('lazy').setup({
     event = { 'BufWritePre' },
     cmd = { 'ConformInfo' },
     keys = {
-      { '<leader>ft', function() require('conform').format { async = true, lsp_format = 'fallback' } end, mode = '', desc = '[F]or[m]at buffer' },
+      { '<leader>fm', function() require('conform').format { async = true, lsp_format = 'fallback' } end, mode = '', desc = '[F]or[m]at buffer' },
     },
     opts = {
       notify_on_error = false,
@@ -487,7 +490,7 @@ require('lazy').setup({
     keys = {
       { '<M-g>w', function() require('flash').jump() end, mode = { 'n', 'x', 'o' }, desc = 'Flash jump' },
       { '<M-g>l', function() require('flash').jump { pattern = '^' } end, mode = { 'n', 'x', 'o' }, desc = 'Flash jump to line' },
-      { '<M-g>t', function() require('flash').treesitter() end, mode = { 'n', 'x', 'o' }, desc = 'Flash treesitter select' },
+      { '<M-g>T', function() require('flash').treesitter() end, mode = { 'n', 'x', 'o' }, desc = 'Flash treesitter select' },
     },
   },
 
