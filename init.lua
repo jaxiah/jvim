@@ -58,9 +58,8 @@ vim.api.nvim_set_hl(0, 'TermCursor', { reverse = true })
 -- Clear search highlight
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
--- Edit / source config
+-- Edit config
 vim.keymap.set('n', '<leader>ev', '<cmd>edit $MYVIMRC<CR>', { desc = 'Edit config' })
-vim.keymap.set('n', '<leader>sv', '<cmd>source $MYVIMRC<CR>', { desc = 'Source config' })
 
 -- File explorer (netrw)
 vim.keymap.set('n', '<C-x>D', function() vim.cmd('Explore ' .. vim.fn.getcwd()) end, { silent = true, desc = 'Explore root dir' })
@@ -122,9 +121,19 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 
 -- [[ Autocommands ]]
 -- switch to english im (1033) when leaving insert mode
+local im_select_missing_notified = false
 vim.api.nvim_create_autocmd('InsertLeave', {
   pattern = '*',
-  callback = function() vim.fn.jobstart { 'im-select.exe', '1033' } end,
+  callback = function()
+    if vim.fn.executable 'im-select.exe' == 0 then
+      if not im_select_missing_notified then
+        vim.notify('im-select.exe not found; cannot switch input method on InsertLeave', vim.log.levels.ERROR)
+        im_select_missing_notified = true
+      end
+      return
+    end
+    vim.fn.jobstart { 'im-select.exe', '1033' }
+  end,
 })
 
 -- Highlight on yank
@@ -190,10 +199,50 @@ end, { silent = true, desc = 'Toggle terminal' })
 -- [[ VisualSearch command ]]
 -- Search within visual selection, results go to quickfix.
 -- Usage (visual mode): :VisualSearch <pattern>
+local function visual_search(line1, line2, pattern)
+  if pattern == nil or pattern == '' then return end
+
+  local items = {}
+  local bufnr = vim.api.nvim_get_current_buf()
+  local filename = vim.api.nvim_buf_get_name(bufnr)
+
+  for lnum = line1, line2 do
+    local line = vim.api.nvim_buf_get_lines(bufnr, lnum - 1, lnum, false)[1] or ''
+    local start = 0
+
+    while start <= #line do
+      local ok, col = pcall(vim.fn.match, line, pattern, start)
+      if not ok then
+        vim.notify('Invalid search pattern: ' .. pattern, vim.log.levels.ERROR)
+        return
+      end
+      if col < 0 then break end
+
+      table.insert(items, {
+        filename = filename,
+        lnum = lnum,
+        col = col + 1,
+        text = line,
+      })
+
+      local match_end = vim.fn.matchend(line, pattern, col)
+      start = math.max(match_end, col + 1)
+    end
+  end
+
+  vim.fn.setqflist({}, 'r', { title = 'VisualSearch: ' .. pattern, items = items })
+  if #items > 0 then
+    vim.cmd 'copen'
+  else
+    vim.notify('No matches: ' .. pattern, vim.log.levels.INFO)
+  end
+end
+
 vim.api.nvim_create_user_command('VisualSearch', function(opts)
-  vim.fn.setqflist {}
-  vim.cmd(opts.line1 .. ',' .. opts.line2 .. 'g/' .. opts.args .. '/caddexpr expand("%") . ":" . line(".") . ":" . getline(".")')
+  visual_search(opts.line1, opts.line2, opts.args)
 end, { range = true, nargs = '+', desc = 'Search in visual range → quickfix' })
+
+vim.keymap.set('x', '<leader>sV', ":VisualSearch ", { desc = '[S]earch [V]isual range' })
 
 -- [[ Code Tour ]]
 require 'codetour'
@@ -430,7 +479,6 @@ require('lazy').setup({
     'nvim-mini/mini.nvim',
     config = function()
       require('mini.ai').setup { n_lines = 500 } -- Better text objects: va), yinq, ci'
-      require('mini.surround').setup() -- saiw), sd', sr)'
       require('mini.comment').setup() -- gc to toggle comments (replaces nerdcommenter)
       require('mini.tabline').setup() -- Buffer tabline (replaces vim-buftabline)
       local statusline = require 'mini.statusline'
