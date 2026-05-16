@@ -65,11 +65,11 @@ vim.keymap.set('n', '<leader>ev', '<cmd>edit $MYVIMRC<CR>', { desc = 'Edit confi
 vim.keymap.set('n', '<C-x>D', function() vim.cmd('Explore ' .. vim.fn.getcwd()) end, { silent = true, desc = 'Explore root dir' })
 vim.keymap.set('n', '<C-x>d', '<cmd>Explore<CR>', { silent = true, desc = 'Explore file dir' })
 
--- Open vsp in current file's directory
-vim.keymap.set('n', '<C-x>3f', ':vsp %:p:h/', { desc = 'Vsp in file dir' })
-
 -- Toggle wrap
-vim.keymap.set('n', '<C-x>xt', '<cmd>set wrap!<CR>', { silent = true, desc = 'Toggle wrap' })
+vim.keymap.set('n', '<C-x>xt', function()
+  vim.wo.wrap = not vim.wo.wrap
+  vim.notify('Wrap ' .. (vim.wo.wrap and 'enabled' or 'disabled'))
+end, { silent = true, desc = 'Toggle wrap' })
 
 -- Emacs-style bindings in insert / cmdline / terminal modes
 -- Note: <c-n>/<c-p>/<c-e> coexist with blink.cmp via its `fallback` mechanism
@@ -358,7 +358,11 @@ require('lazy').setup({
 
       local builtin = require 'telescope.builtin'
       -- Emacs-style file/buffer pickers (mirrors LeaderF bindings from vimrc)
-      vim.keymap.set('n', '<C-x><C-f>', builtin.find_files, { desc = 'Find files' })
+      local find_files_opts = { hidden = true, no_ignore = true }
+      vim.keymap.set('n', '<C-x><C-f>', function() builtin.find_files(find_files_opts) end, { desc = 'Find files' })
+      vim.keymap.set('n', '<C-x>3f', function()
+        builtin.find_files(vim.tbl_extend('force', find_files_opts, { cwd = vim.fn.expand '%:p:h', prompt_title = 'Find files in current directory' }))
+      end, { desc = 'Find files in current file dir' })
       vim.keymap.set('n', '<C-x><C-b>', builtin.buffers, { desc = 'Find buffers' })
       vim.keymap.set('n', '<C-x><C-r>', builtin.oldfiles, { desc = 'Recent files (MRU)' })
       vim.keymap.set('n', '<M-g>rg', builtin.live_grep, { desc = 'Live grep (ripgrep)' })
@@ -523,7 +527,7 @@ require('lazy').setup({
       require('mini.tabline').setup() -- Buffer tabline (replaces vim-buftabline)
       local statusline = require 'mini.statusline'
       statusline.setup { use_icons = vim.g.have_nerd_font }
-      statusline.section_location = function() return '%2l:%-2v' end
+      statusline.section_location = function() return '%2l:%-2v %P' end
     end,
   },
 
