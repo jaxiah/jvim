@@ -96,6 +96,46 @@ vim.keymap.set('n', '<C-y>', '5<C-y>')
 vim.keymap.set('n', '<C-PageUp>', '<cmd>bprevious<CR>')
 vim.keymap.set('n', '<C-PageDown>', '<cmd>bnext<CR>')
 
+-- Run a navigation action in the right window, creating one if needed
+local function in_right_window(action)
+  local current_win = vim.api.nvim_get_current_win()
+  vim.cmd 'wincmd l'
+  if vim.api.nvim_get_current_win() == current_win then
+    vim.cmd 'vsplit'
+  end
+
+  action()
+end
+
+local function open_file_under_cursor_right(with_line)
+  local file = vim.fn.expand '<cfile>'
+  if file == '' then return end
+
+  local line = nil
+  if with_line then
+    local cWORD = vim.fn.expand '<cWORD>'
+    line = cWORD:match(vim.pesc(file) .. ':(%d+)')
+  end
+
+  in_right_window(function()
+    vim.cmd('find ' .. vim.fn.fnameescape(file))
+    if line then
+      vim.api.nvim_win_set_cursor(0, { tonumber(line), 0 })
+    end
+  end)
+end
+
+local function jump_to_tag_right()
+  local tag = vim.fn.expand '<cword>'
+  if tag == '' then return end
+
+  in_right_window(function() vim.cmd('tag ' .. vim.fn.escape(tag, ' \t|')) end)
+end
+
+vim.keymap.set('n', '<leader>gf', function() open_file_under_cursor_right(false) end, { desc = 'Open file under cursor in right window' })
+vim.keymap.set('n', '<leader>gF', function() open_file_under_cursor_right(true) end, { desc = 'Open file under cursor at line in right window' })
+vim.keymap.set('n', '<leader><C-]>', jump_to_tag_right, { desc = 'Jump to tag in right window' })
+
 -- Window navigation
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move to left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move to right window' })
